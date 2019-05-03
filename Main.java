@@ -128,6 +128,7 @@ public class Main extends Application {
                         choices.add(new Choice(false, answerWrong4.getText()));
                         Question newQuestion = new Question("", questionText.getText(), questionTopic.getText(), "", choices, answerRight.getText());
                         qDB.addQuestion(newQuestion.getTopic(), newQuestion);
+                        topicSelection.getItems().addAll(qDB.getTopics());
                         addQuestionWindow.close();
                     }
                 });
@@ -157,11 +158,11 @@ public class Main extends Application {
 
 
         // Topics ComboBox
-        topicSelection.getItems().addAll("Animals", "Art", "History", "Music", "Sports");
+        topicSelection.getItems().addAll(qDB.getTopics());
         topicSelection.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                topicInfo.setText("Topic: " + topicSelection.getValue() + " has X questions");
+                topicInfo.setText("Topic: " + topicSelection.getValue() + " has " + qDB.getQuestions(topicSelection.getValue()).size() + " question(s)");
             }
         });
 
