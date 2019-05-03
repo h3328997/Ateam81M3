@@ -1,0 +1,28 @@
+.label {
+    -fx-font: 12px Tahoma;
+}
+
+.title {
+    -fx-font: 17px Tahoma;
+    -fx-font-weight: bold;
+}
+
+.startbutton {
+    -fx-base: #b6e7c9;
+}
+
+.textfield {
+    -fx-font: 10px Tahoma;
+
+}
+
+.wrongtextfield {
+    -fx-font: 10px Tahoma;
+    -fx-text-fill: red;
+
+}
+
+.righttextfield {
+    -fx-font: 10px Tahoma;
+    -fx-text-fill: green;
+}
