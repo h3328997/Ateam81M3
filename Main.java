@@ -7,6 +7,9 @@
 *
 */
 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -76,6 +79,24 @@ public class Main extends Application {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setHeaderText("UPLOAD JSON TEST");
                 alert.setContentText("Should open file menu");
+
+                // Create file picker
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir"))); // Change from "user.dir" to "user.home" before build
+                int result = fileChooser.showOpenDialog(null);
+
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    System.out.println("File chosen at: " + selectedFile.getAbsolutePath());
+
+                    try {
+                        qDB.loadQuestionsFromJSON(selectedFile);
+                        topicSelection.getItems().addAll(qDB.getTopics());
+                    } catch(Exception e) {
+                        System.out.println("File Upload Failure");
+                    }
+                }
+
                 alert.showAndWait();
             }
         });
