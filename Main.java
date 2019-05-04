@@ -1,11 +1,11 @@
 /*
-*
-* Assignment: Quiz Generator GUI
-* Authors: ATeam 81 - Hunter Ward, Sammy Gomez, Yifei Fan
-* Due: 4/25
-* Known Bugs: Sometimes the separators disappear on main stage after opening and closing window to add new questions.
-*
-*/
+ *
+ * Assignment: Quiz Generator GUI
+ * Authors: ATeam 81 - Hunter Ward, Sammy Gomez, Yifei Fan
+ * Due: 4/25
+ * Known Bugs: Sometimes the separators disappear on main stage after opening and closing window to add new questions.
+ *
+ */
 
 import javax.swing.JFileChooser;
 import java.util.Optional;
@@ -23,7 +23,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,29 +30,39 @@ import java.util.Random;
 
 
 public class Main extends Application {
-    QuestionDatabase qDB = new QuestionDatabase();
-    private List<Question> quiz;
-    private int correct;
+    QuestionDatabase qDB = new QuestionDatabase(); // Open a new database for questions
+    private List<Question> quiz; // List that is filled with questions for the quiz
+    private int correct;  // Correct questions counter
 
+    /*
+    *  A refresh method for the ComboBox
+    *  Clears the ComboBox then refills it with the most updated list of topics
+    */
     private void resetCombo(ComboBox cb, QuestionDatabase qdb) {
         cb.getItems().removeAll(cb.getItems());
         cb.getItems().addAll(qdb.getTopics());
     }
 
+    /*
+     *  A refresh method for the # of questions in database label
+     *  Gets an updated number of questions then updates the label
+     */
     public void changeDBN(Label info, QuestionDatabase qDB) {
         int numQ = qDB.getNumQuestions();
         info.setText(numQ + " Question(s) in Database");
     }
 
+
+    /*
+    * Main JFX method
+    */
     @Override
     public void start(Stage primaryStage) throws Exception{
+
         // Main Scene Layout Declarations
         BorderPane indexPane = new BorderPane();
         HBox select = new HBox();
         VBox mainPane = new VBox();
-
-
-
 
         // Main Scene Control Declarations
         Button startQuizBtn = new Button("Start Quiz");
@@ -76,8 +85,11 @@ public class Main extends Application {
         Button submitQuestion = new Button("Submit");
 
         // Controls action
-        
-        // JSON Button
+
+        /*
+        * JSON file upload button
+        * OnAction -> Opens a window to select a file.  The file is then passed to the loadQuestionsFromJSON() method in the QuestionDatabase Class
+        */
         selectJSONBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -103,21 +115,25 @@ public class Main extends Application {
             }
         });
 
-        // Add Question Button
+        /*
+        * Button to begin the process of manually adding a new question
+        * OnAction -> Opens a new stage with new options
+        */
         addQuestionBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 // Create new window
                 VBox addQuestionLayout = new VBox();
                 Scene addQuestionScene = new Scene(addQuestionLayout, 350, 455);
-
                 Stage addQuestionWindow = new Stage();
                 addQuestionWindow.setTitle("Add a Question");
                 addQuestionWindow.setScene(addQuestionScene);
 
+                // Position the Window
                 addQuestionWindow.setX(primaryStage.getX());
                 addQuestionWindow.setY(primaryStage.getY() + 5);
 
+                // Add controls/labels
                 Label addQTitle = new Label("Add a Question");
                 Label topicLb = new Label("Enter Topic:");
                 Separator sep3 = new Separator();
@@ -134,9 +150,10 @@ public class Main extends Application {
                 TextField answerWrong4 = new TextField("Enter WRONG answer here");
                 Separator sep6 = new Separator();
 
-
-                // Add a question submit button
-
+                /*
+                * Submit question button
+                * OnAction -> Submits new question to the database
+                */
                 submitQuestion.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
@@ -157,7 +174,7 @@ public class Main extends Application {
                     }
                 });
 
-
+                // Setup 2nd windows scene
                 addQuestionLayout.getChildren().addAll(addQTitle, sep2, topicLb, questionTopic, sep4, questionLb, questionText, sep5, ansLb, answerRight, answerWrong1, answerWrong2, answerWrong3, answerWrong4, submitQuestion);
                 addQuestionLayout.setAlignment(Pos.CENTER);
                 addQuestionLayout.setSpacing(12);
@@ -175,6 +192,10 @@ public class Main extends Application {
             }
         });
 
+        /*
+        * Save database to json file button
+        * OnAction -> Saves current database to the programs directory named "questions.json"
+        */
         saveToJSON.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -192,12 +213,15 @@ public class Main extends Application {
             }
         });
 
-        // Question # textfield
+        /*
+        * Simple small textbox to take in number of questions to put into quiz
+        */
         questionNum.setPrefColumnCount(1);
 
-
-
-        // Topics ComboBox
+        /*
+        * Topic Selector Combobox
+        * OnAction -> Updates the below label with information on # of questions in the topic
+        */
         topicSelection.getItems().addAll(qDB.getTopics());
         topicSelection.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -206,7 +230,10 @@ public class Main extends Application {
             }
         });
 
-        // Start Quiz Button
+        /*
+        * Quiz Start Button
+        * OnAction -> Begins quiz with number of questions desired
+        */
         startQuizBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -243,8 +270,6 @@ public class Main extends Application {
         indexPane.setPadding(new Insets(20));
         mainPane.getChildren().addAll(sep1, addQuestion, addQuestionBtn, selectJSONBtn, saveToJSON, sep, selectTopic, topicSelection, sep2, topicInfo, dbInfo, select);
         mainPane.setAlignment(Pos.CENTER);
-
-
         mainPane.setSpacing(20);
 
         // Main Stage Config
@@ -257,94 +282,106 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    /*
+    * Main quiz scene logic and function
+    * Tracks answers as well as controls scene
+    */
     private void quizScene(int idx, Stage quizWindow) {
-      if (quiz.size()<=idx) {
-        end(quizWindow);
-        return;
-      }
-      Question getQ=quiz.get(idx);
-      QuestionNode currentQ = new QuestionNode(getQ);
-      VBox vbox=new VBox(15);
-      Button b = new Button("Confirm");
-      EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() { 
-        public void handle(ActionEvent e) 
-        { 
-          VBox vbox2=new VBox(9);
-          Question question=currentQ.getQuestion();
-          Label questionLabel = new Label(question.getQuestion());
-          vbox2.getChildren().add(questionLabel);
-          //Accompanying image to question
-          if (!question.getImage().equals("none")) {
-            Image image = new Image(question.getImage());
-            ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(200);
-            imageView.setFitWidth(200);
-            imageView.setPreserveRatio(true);
-            vbox2.getChildren().add(imageView);
-          }
-          Button c = new Button("Got it!");
-          EventHandler<ActionEvent> event2 = new EventHandler<ActionEvent>() { 
-            public void handle(ActionEvent e) {
-              quizScene(idx+1,quizWindow);
+        if (quiz.size()<=idx) {
+            end(quizWindow);
+            return;
+        }
+        Question getQ=quiz.get(idx);
+        QuestionNode currentQ = new QuestionNode(getQ);
+        VBox vbox=new VBox(15);
+        Button b = new Button("Confirm");
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e)
+            {
+                VBox vbox2=new VBox(9);
+                Question question=currentQ.getQuestion();
+                Label questionLabel = new Label(question.getQuestion());
+                vbox2.getChildren().add(questionLabel);
+                //Accompanying image to question
+                if (!question.getImage().equals("none")) {
+                    Image image = new Image(question.getImage());
+                    ImageView imageView = new ImageView(image);
+                    imageView.setFitHeight(200);
+                    imageView.setFitWidth(200);
+                    imageView.setPreserveRatio(true);
+                    vbox2.getChildren().add(imageView);
+                }
+                Button c = new Button("Got it!");
+                EventHandler<ActionEvent> event2 = new EventHandler<ActionEvent>() {
+                    public void handle(ActionEvent e) {
+                        quizScene(idx+1,quizWindow);
+                    }
+                };
+                c.setOnAction(event2);
+                if (currentQ.getChoices().getSelectedToggle()==null) {
+
+                    Label answerLabel = new Label("You did not answer this question, the correct answer is: "+question.getAnswer());
+                    vbox2.getChildren().add(answerLabel);
+                    vbox2.getChildren().add(c);
+                    Scene questionScene = new Scene(vbox2, 400, 400);
+                    quizWindow.setScene(questionScene);
+                    quizWindow.show();
+                }
+                else if (((RadioButton) currentQ.getChoices().getSelectedToggle()).getText()
+                        .equals(currentQ.getQuestion().getAnswer())) {
+                    correct++;
+                    Label answerLabel = new Label("Your answer is correct: "+question.getAnswer());
+                    vbox2.getChildren().add(answerLabel);
+                    vbox2.getChildren().add(c);
+                    Scene questionScene = new Scene(vbox2, 400, 400);
+                    quizWindow.setScene(questionScene);
+                    quizWindow.show();
+                }
+                else {
+                    Label answerLabel = new Label("Your answer is incorrect. Your answer: "
+                            +((RadioButton) currentQ.getChoices().getSelectedToggle()).getText()+", the correct answer is "
+                            +question.getAnswer());
+                    vbox2.getChildren().add(answerLabel);
+                    vbox2.getChildren().add(c);
+                    Scene questionScene = new Scene(vbox2, 400, 400);
+                    quizWindow.setScene(questionScene);
+                    quizWindow.show();
+                }
+
+
             }
-          };
-          c.setOnAction(event2);
-          if (currentQ.getChoices().getSelectedToggle()==null) {
-            
-            Label answerLabel = new Label("You did not answer this question, the correct answer is: "+question.getAnswer());
-            vbox2.getChildren().add(answerLabel);
-            vbox2.getChildren().add(c);
-            Scene questionScene = new Scene(vbox2, 400, 400);
-            quizWindow.setScene(questionScene);
-            quizWindow.show();
-          }
-          else if (((RadioButton) currentQ.getChoices().getSelectedToggle()).getText()
-          .equals(currentQ.getQuestion().getAnswer())) {
-            correct++;
-            Label answerLabel = new Label("Your answer is correct: "+question.getAnswer());
-            vbox2.getChildren().add(answerLabel);
-            vbox2.getChildren().add(c);
-            Scene questionScene = new Scene(vbox2, 400, 400);
-            quizWindow.setScene(questionScene);
-            quizWindow.show();
-          }
-          else {
-            Label answerLabel = new Label("Your answer is incorrect. Your answer: "
-          +((RadioButton) currentQ.getChoices().getSelectedToggle()).getText()+", the correct answer is "
-          +question.getAnswer());
-            vbox2.getChildren().add(answerLabel);
-            vbox2.getChildren().add(c);
-            Scene questionScene = new Scene(vbox2, 400, 400);
-            quizWindow.setScene(questionScene);
-            quizWindow.show();
-          }
-          
-          
-        } 
-      }; 
-      b.setOnAction(event); 
-      Label status = new Label("Question#: "+(idx+1)+" of "+ quiz.size()+" Questions");
-      vbox.getChildren().add(status);
-      vbox.getChildren().add(currentQ.getNode());
-      vbox.getChildren().add(b);
-      Scene questionScene = new Scene(vbox, 400, 400);
-      quizWindow.setScene(questionScene);
-      quizWindow.show();
+        };
+        b.setOnAction(event);
+        Label status = new Label("Question#: "+(idx+1)+" of "+ quiz.size()+" Questions");
+        vbox.getChildren().add(status);
+        vbox.getChildren().add(currentQ.getNode());
+        vbox.getChildren().add(b);
+        Scene questionScene = new Scene(vbox, 400, 400);
+        quizWindow.setScene(questionScene);
+        quizWindow.show();
 
     }
 
+    /*
+    *  End of quiz scene with results
+    */
     private void end(Stage quizWindow) {
-      VBox vbox=new VBox(15);
-      Label status = new Label("Quiz result: #correct "+correct+" out of "+quiz.size()+". Your Score: "+(float)correct/quiz.size()*100);
-      vbox.getChildren().add(status);
-      Scene questionScene = new Scene(vbox, 400, 400);
-      quizWindow.setScene(questionScene);
-      quizWindow.show();
-      quiz.clear();
-      correct=0;
+        VBox vbox=new VBox(15);
+        Label status = new Label("Quiz result: #correct "+correct+" out of "+quiz.size()+". Your Score: "+(float)correct/quiz.size()*100);
+        vbox.getChildren().add(status);
+        Scene questionScene = new Scene(vbox, 400, 400);
+        quizWindow.setScene(questionScene);
+        quizWindow.show();
+        quiz.clear();
+        correct=0;
     }
 
 
+    /*
+    *  Runs on program exit
+    *  Exit dialog with save options appears
+    *
+    */
     @Override
     public void stop() throws Exception {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
