@@ -54,6 +54,7 @@ public class Main extends Application {
         Button startQuizBtn = new Button("Start Quiz");
         Button selectJSONBtn = new Button("Upload JSON File");
         Button addQuestionBtn = new Button("Add Single Question");
+        Button saveToJSON = new Button("Save DB to File");
         ComboBox<String> topicSelection = new ComboBox<String>();
         TextField questionNum = new TextField();
         Label title = new Label("Quiz Generator");
@@ -81,7 +82,7 @@ public class Main extends Application {
 
                 // Create file picker
                 JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir"))); // Change from "user.dir" to "user.home" before build
+                fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
                 int result = fileChooser.showOpenDialog(null);
 
                 if (result == JFileChooser.APPROVE_OPTION) {
@@ -173,6 +174,22 @@ public class Main extends Application {
             }
         });
 
+        saveToJSON.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                File file = new File("questions.json");
+                try {
+                    file.createNewFile();
+                } catch (Exception e) {
+                    System.out.println("File not created");
+                }
+                try {
+                    qDB.saveQuestionsToJSON(file);
+                } catch (Exception e) {
+                    System.out.println("File Error");
+                }
+            }
+        });
 
         // Question # textfield
         questionNum.setPrefColumnCount(1);
@@ -220,7 +237,7 @@ public class Main extends Application {
         select.getChildren().addAll(selectLabel, questionNum);
         select.setAlignment(Pos.CENTER);
         indexPane.setPadding(new Insets(20));
-        mainPane.getChildren().addAll(sep1, addQuestion, addQuestionBtn, selectJSONBtn, sep, selectTopic, topicSelection, sep2, topicInfo, dbInfo, select);
+        mainPane.getChildren().addAll(sep1, addQuestion, addQuestionBtn, selectJSONBtn, saveToJSON, sep, selectTopic, topicSelection, sep2, topicInfo, dbInfo, select);
         mainPane.setAlignment(Pos.CENTER);
 
 
