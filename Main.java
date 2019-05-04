@@ -8,7 +8,7 @@
 */
 
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileSystemView;
+import java.util.Optional;
 import java.io.File;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -22,11 +22,26 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 
 public class Main extends Application {
+    QuestionDatabase qDB = new QuestionDatabase();
+    private List<Question> quiz;
+    private List<Choice> answer;
+
+    private void resetCombo(ComboBox cb, QuestionDatabase qdb) {
+        cb.getItems().removeAll(cb.getItems());
+        cb.getItems().addAll(qdb.getTopics());
+    }
+
+    public void changeDBN(Label info, QuestionDatabase qDB) {
+        int numQ = qDB.getNumQuestions();
+        info.setText(numQ + " Question(s) in Database");
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -35,18 +50,20 @@ public class Main extends Application {
         HBox select = new HBox();
         VBox mainPane = new VBox();
 
-        QuestionDatabase qDB = new QuestionDatabase();
+
 
 
         // Main Scene Control Declarations
         Button startQuizBtn = new Button("Start Quiz");
         Button selectJSONBtn = new Button("Upload JSON File");
         Button addQuestionBtn = new Button("Add Single Question");
+        Button saveToJSON = new Button("Save DB to File");
         ComboBox<String> topicSelection = new ComboBox<String>();
         TextField questionNum = new TextField();
         Label title = new Label("Quiz Generator");
         Label addQuestion = new Label("Add Question(s)");
         Label selectTopic = new Label("Select Topic");
+        Label dbInfo = new Label("No Questions in Database");
         Separator sep = new Separator();
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
@@ -56,21 +73,7 @@ public class Main extends Application {
         // addQuestion Scene Control Declarations
         Button submitQuestion = new Button("Submit");
 
-
-
-        // Controls actions
-        // Start Quiz Button
-        startQuizBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText("START QUIZ TEST");
-                alert.setContentText("Should be replaced with changing scene to quiz");
-                alert.showAndWait();
-            }
-        });
-
-
+        // Controls action
         
         // JSON Button
         selectJSONBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -78,11 +81,11 @@ public class Main extends Application {
             public void handle(ActionEvent actionEvent) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setHeaderText("UPLOAD JSON TEST");
-                alert.setContentText("Questions loaded");
+                alert.setContentText("Should open file menu");
 
                 // Create file picker
                 JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir"))); // Change from "user.dir" to "user.home" before build
+                fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
                 int result = fileChooser.showOpenDialog(null);
 
                 if (result == JFileChooser.APPROVE_OPTION) {
@@ -91,7 +94,8 @@ public class Main extends Application {
 
                     try {
                         qDB.loadQuestionsFromJSON(selectedFile);
-                        topicSelection.getItems().setAll(qDB.getTopics());
+                        resetCombo(topicSelection, qDB);
+                        changeDBN(dbInfo, qDB);
                     } catch(Exception e) {
                         System.out.println("File Upload Failure");
                     }
@@ -149,7 +153,8 @@ public class Main extends Application {
                         choices.add(new Choice(false, answerWrong4.getText()));
                         Question newQuestion = new Question("", questionText.getText(), questionTopic.getText(), "", choices, answerRight.getText());
                         qDB.addQuestion(newQuestion.getTopic(), newQuestion);
-                        topicSelection.getItems().setAll(qDB.getTopics());
+                        resetCombo(topicSelection, qDB);
+                        changeDBN(dbInfo, qDB);
                         addQuestionWindow.close();
                     }
                 });
@@ -172,6 +177,22 @@ public class Main extends Application {
             }
         });
 
+        saveToJSON.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                File file = new File("questions.json");
+                try {
+                    file.createNewFile();
+                } catch (Exception e) {
+                    System.out.println("File not created");
+                }
+                try {
+                    qDB.saveQuestionsToJSON(file);
+                } catch (Exception e) {
+                    System.out.println("File Error");
+                }
+            }
+        });
 
         // Question # textfield
         questionNum.setPrefColumnCount(1);
@@ -179,11 +200,36 @@ public class Main extends Application {
 
 
         // Topics ComboBox
-        topicSelection.getItems().setAll(qDB.getTopics());
+        topicSelection.getItems().addAll(qDB.getTopics());
         topicSelection.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 topicInfo.setText("Topic: " + topicSelection.getValue() + " has " + qDB.getQuestions(topicSelection.getValue()).size() + " question(s)");
+            }
+        });
+
+        // Start Quiz Button
+        startQuizBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                quiz=new ArrayList<Question>();
+                String topic = topicSelection.getValue();
+                int numQ = Integer.parseInt(questionNum.getText());
+                List<Question> questions = qDB.getQuestions(topic);
+                if (numQ>questions.size())
+                    numQ=questions.size();
+                Random rn = new Random();                while (numQ>0) {
+                    int idx=rn.nextInt(numQ);
+                    Question q=questions.get(idx);
+                    quiz.add(q);
+                    questions.remove(idx);
+                    numQ--;
+                }
+
+                Stage quizWindow = new Stage();
+                quizScene(0,quizWindow);
+
+
             }
         });
 
@@ -197,7 +243,7 @@ public class Main extends Application {
         select.getChildren().addAll(selectLabel, questionNum);
         select.setAlignment(Pos.CENTER);
         indexPane.setPadding(new Insets(20));
-        mainPane.getChildren().addAll(sep1, addQuestion, addQuestionBtn, selectJSONBtn, sep, selectTopic, topicSelection, sep2, topicInfo, select);
+        mainPane.getChildren().addAll(sep1, addQuestion, addQuestionBtn, selectJSONBtn, saveToJSON, sep, selectTopic, topicSelection, sep2, topicInfo, dbInfo, select);
         mainPane.setAlignment(Pos.CENTER);
 
 
@@ -205,7 +251,7 @@ public class Main extends Application {
 
         // Main Stage Config
         primaryStage.setTitle("ATEAM 81 Quiz Generator");
-        Scene primaryScene = new Scene(indexPane, 350, 465);
+        Scene primaryScene = new Scene(indexPane, 350, 495);
         primaryScene.getStylesheets().add("styles.css");
         startQuizBtn.getStyleClass().add("startbutton");
         title.getStyleClass().add("title");
@@ -213,6 +259,71 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    private void quizScene(int idx, Stage quizWindow) {
+        if (quiz.size()<=idx) {
+            end(quizWindow);
+            return;
+        }
+        Question getQ=quiz.get(idx);
+        QuestionNode currentQ = new QuestionNode(getQ);
+        VBox vbox=new VBox(15);
+        Button b = new Button("Confirm");
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e)
+            {
+                quizScene(idx+1,quizWindow);
+            }
+        };
+        b.setOnAction(event);
+        Label status = new Label("Question#: "+(idx+1)+" of "+ quiz.size()+" Questions");
+        vbox.getChildren().add(status);
+        vbox.getChildren().add(currentQ.getNode());
+        vbox.getChildren().add(b);
+        Scene questionScene = new Scene(vbox, 400, 400);
+        quizWindow.setScene(questionScene);
+        quizWindow.show();
+
+    }
+
+    private void end(Stage quizWindow) {
+        VBox vbox=new VBox(15);
+        Label status = new Label("Quiz result");
+        vbox.getChildren().add(status);
+        Scene questionScene = new Scene(vbox, 400, 400);
+        quizWindow.setScene(questionScene);
+        quizWindow.show();
+        quiz.clear();
+        answer.clear();
+    }
+
+
+    @Override
+    public void stop() throws Exception {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Exiting Program");
+        alert.setHeaderText("Do you want to save the database?");
+        alert.setContentText("Chose your option");
+
+        ButtonType buttony = new ButtonType("Yes");
+        ButtonType buttonn = new ButtonType("No");
+
+        alert.getButtonTypes().setAll(buttony, buttonn);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttony) {
+            File file = new File("questions.json");
+            try {
+                file.createNewFile();
+            } catch (Exception e) {
+                System.out.println("File not created");
+            }
+            try {
+                qDB.saveQuestionsToJSON(file);
+            } catch (Exception e) {
+                System.out.println("File Error");
+            }
+        }
+    }
 
     public static void main(String[] args) {
         launch(args);
