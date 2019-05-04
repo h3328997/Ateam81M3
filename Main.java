@@ -17,6 +17,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -267,12 +269,57 @@ public class Main extends Application {
       EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() { 
         public void handle(ActionEvent e) 
         { 
-          if (currentQ.getChoices().getSelectedToggle()==null) {}
+          VBox vbox2=new VBox(9);
+          Question question=currentQ.getQuestion();
+          Label questionLabel = new Label(question.getQuestion());
+          vbox2.getChildren().add(questionLabel);
+          //Accompanying image to question
+          if (!question.getImage().equals("none")) {
+            Image image = new Image(question.getImage());
+            ImageView imageView = new ImageView(image);
+            imageView.setFitHeight(200);
+            imageView.setFitWidth(200);
+            imageView.setPreserveRatio(true);
+            vbox2.getChildren().add(imageView);
+          }
+          Button c = new Button("Got it!");
+          EventHandler<ActionEvent> event2 = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) {
+              quizScene(idx+1,quizWindow);
+            }
+          };
+          c.setOnAction(event2);
+          if (currentQ.getChoices().getSelectedToggle()==null) {
+            
+            Label answerLabel = new Label("You did not answer this question, the correct answer is: "+question.getAnswer());
+            vbox2.getChildren().add(answerLabel);
+            vbox2.getChildren().add(c);
+            Scene questionScene = new Scene(vbox2, 400, 400);
+            quizWindow.setScene(questionScene);
+            quizWindow.show();
+          }
           else if (((RadioButton) currentQ.getChoices().getSelectedToggle()).getText()
           .equals(currentQ.getQuestion().getAnswer())) {
             correct++;
+            Label answerLabel = new Label("Your answer is correct: "+question.getAnswer());
+            vbox2.getChildren().add(answerLabel);
+            vbox2.getChildren().add(c);
+            Scene questionScene = new Scene(vbox2, 400, 400);
+            quizWindow.setScene(questionScene);
+            quizWindow.show();
           }
-          quizScene(idx+1,quizWindow);
+          else {
+            Label answerLabel = new Label("Your answer is incorrect. Your answer: "
+          +((RadioButton) currentQ.getChoices().getSelectedToggle()).getText()+", the correct answer is "
+          +question.getAnswer());
+            vbox2.getChildren().add(answerLabel);
+            vbox2.getChildren().add(c);
+            Scene questionScene = new Scene(vbox2, 400, 400);
+            quizWindow.setScene(questionScene);
+            quizWindow.show();
+          }
+          
+          
         } 
       }; 
       b.setOnAction(event); 
