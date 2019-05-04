@@ -1,3 +1,7 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javafx.application.Application;
@@ -25,6 +29,8 @@ public class QuestionNode implements NodeWrapperADT{
 		this.choices = new ToggleGroup();
 		this.question = question;
 		SetupVBox();
+
+
 	}
 	
 	public VBox getNode() {
@@ -39,38 +45,38 @@ public class QuestionNode implements NodeWrapperADT{
 		//label for the question
 		Label questionLabel = new Label(this.question.getQuestion());
 		//Accompanying image to question
-		Image image = new Image(this.question.getImage());
+		Image image = null;// = new Image(this.question.getImage());
 		ImageView imageView = new ImageView();
-		if(image != null) {
-			imageView = new ImageView(image);
-			imageView.setFitHeight(200);
-			imageView.setFitWidth(200);
-			imageView.setPreserveRatio(true);
+		if (question.getImage() != null) {
+			if (image != null) {
+				imageView = new ImageView(image);
+				imageView.setFitHeight(200);
+				imageView.setFitWidth(200);
+				imageView.setPreserveRatio(true);
+			}
 		}
-		//Set the text and Togglegroup for each button
+
+		// Add buttons
 		Iterator<Choice> iterator = this.question.getChoices().iterator();
-		ToggleButton tb1 = new ToggleButton(iterator.next().getChoice());
-		tb1.setToggleGroup(choices);
-		ToggleButton tb2 = new ToggleButton(iterator.next().getChoice());
-		tb2.setToggleGroup(choices);
-		ToggleButton tb3 = new ToggleButton(iterator.next().getChoice());
-		tb3.setToggleGroup(choices);
-		ToggleButton tb4 = new ToggleButton(iterator.next().getChoice());
-		tb4.setToggleGroup(choices);
-		ToggleButton tb5 = new ToggleButton(iterator.next().getChoice());
-		tb5.setToggleGroup(choices);
-		
+		ArrayList<ToggleButton> bts = new ArrayList<>();
+		while(iterator.hasNext()) {
+			bts.add(new ToggleButton(iterator.next().getChoice()));
+		}
+
 		//adding question and buttons to VBox
 		node.getChildren().add(questionLabel);
 		if(image != null) {
 			node.getChildren().add(imageView);
 		}
-		node.getChildren().add(tb1);
-		node.getChildren().add(tb2);
-		node.getChildren().add(tb3);
-		node.getChildren().add(tb4);
-		node.getChildren().add(tb5);
+
+		// Add buttons to screen
+		for (ToggleButton b : bts) {
+			b.setToggleGroup(choices);
+		}
+		node.getChildren().addAll(bts);
 	}
+
+
 
 	@Override
 	public Node node() {
