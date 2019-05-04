@@ -14,12 +14,20 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+/**
+ * Sets up a VBox to display when showing a question and the possible answer choices
+ * @author Hunter, Yifei, Sammy
+ *
+ */
 public class QuestionNode implements NodeWrapperADT{
-	private VBox node;
-	private ToggleGroup choices;
-	private Question question;
+	private VBox node;  //Holds VBox that will display to user
+	private ToggleGroup choices;  //The choices that will be displayed
+	private Question question;  //The question that will be displayed
 	
+	/**
+	 * Constructor automatically sets up VBox field
+	 * @param question
+	 */
 	public QuestionNode(Question question){
 		this.node = new VBox(7);
 		this.choices = new ToggleGroup();
@@ -27,17 +35,32 @@ public class QuestionNode implements NodeWrapperADT{
 		SetupVBox();
 	}
 	
+	/**
+	 * Getter for Node field
+	 * @return
+	 */
 	public VBox getNode() {
 		return this.node;
 	}
 	
+	/**
+	 * Getter for question Field
+	 * @return
+	 */
 	public Question getQuestion() {
       return this.question;
     }
+	/**
+	 * Getter for choices field
+	 * @return
+	 */
 	public ToggleGroup getChoices() {
 		return this.choices;
 	}
 	
+	/**
+	 * Sets up the VBox. Automatically called in the constructor
+	 */
 	public void SetupVBox() {
 		//label for the question
 		Label questionLabel = new Label(this.question.getQuestion());
@@ -60,7 +83,10 @@ public class QuestionNode implements NodeWrapperADT{
 		
 		
 	}
-
+	
+	/**
+	 * Returns a node
+	 */
 	@Override
 	public Node node() {
 		return null;

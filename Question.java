@@ -3,17 +3,26 @@ import java.util.List;
 /**
  * This class represents a single question
  * 
- * @author Yifei Fan
+ * @author Hunter, Yifei, Sammy
  *
  */
 public class Question {
-  private String metadata;
-  private String question;
-  private String topic;
-  private String image;
-  private String answer;
-  private List<Choice> choices;
+  private String metadata;  //Metadata for question
+  private String question;  //Question itself
+  private String topic;  //Topic for question
+  private String image;  //Image associated with the question
+  private String answer;  //correct answer for the question
+  private List<Choice> choices;  //List of possible choices
 
+  /**
+   * Constructor creates new Question
+   * @param metadata
+   * @param question
+   * @param topic
+   * @param image
+   * @param choices
+   * @param answer
+   */
   public Question(String metadata, String question, String topic, String image,
       List<Choice> choices, String answer) {
     this.metadata = metadata;

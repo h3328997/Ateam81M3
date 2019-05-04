@@ -20,7 +20,7 @@ import org.json.simple.parser.ParseException;
  * This class contains all questions and maintain a list of all topics. Reads questions from .json
  * files and allows add questions to a .json file
  * 
- * @author Yifei Fan
+ * @author Hunter, Yifei, Sammy
  *
  */
 public class QuestionDatabase {

@@ -1,7 +1,7 @@
 /**
  * This class represents a single choice of a question
  * 
- * @author Yifei Fan
+ * @author Hunter, Yifei, Sammy
  *
  */
 public class Choice {
