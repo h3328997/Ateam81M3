@@ -78,7 +78,7 @@ public class Main extends Application {
             public void handle(ActionEvent actionEvent) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setHeaderText("UPLOAD JSON TEST");
-                alert.setContentText("Should open file menu");
+                alert.setContentText("Questions loaded");
 
                 // Create file picker
                 JFileChooser fileChooser = new JFileChooser();
@@ -91,7 +91,7 @@ public class Main extends Application {
 
                     try {
                         qDB.loadQuestionsFromJSON(selectedFile);
-                        topicSelection.getItems().addAll(qDB.getTopics());
+                        topicSelection.getItems().setAll(qDB.getTopics());
                     } catch(Exception e) {
                         System.out.println("File Upload Failure");
                     }
@@ -149,7 +149,7 @@ public class Main extends Application {
                         choices.add(new Choice(false, answerWrong4.getText()));
                         Question newQuestion = new Question("", questionText.getText(), questionTopic.getText(), "", choices, answerRight.getText());
                         qDB.addQuestion(newQuestion.getTopic(), newQuestion);
-                        topicSelection.getItems().addAll(qDB.getTopics());
+                        topicSelection.getItems().setAll(qDB.getTopics());
                         addQuestionWindow.close();
                     }
                 });
@@ -179,7 +179,7 @@ public class Main extends Application {
 
 
         // Topics ComboBox
-        topicSelection.getItems().addAll(qDB.getTopics());
+        topicSelection.getItems().setAll(qDB.getTopics());
         topicSelection.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
