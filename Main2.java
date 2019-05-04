@@ -35,6 +35,11 @@ public class Main extends Application {
         cb.getItems().addAll(qdb.getTopics());
     }
 
+    public void changeDBN(Label info, QuestionDatabase qDB) {
+        int numQ = qDB.getNumQuestions();
+        info.setText(numQ + " Question(s) in Database");
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         // Main Scene Layout Declarations
@@ -54,6 +59,7 @@ public class Main extends Application {
         Label title = new Label("Quiz Generator");
         Label addQuestion = new Label("Add Question(s)");
         Label selectTopic = new Label("Select Topic");
+        Label dbInfo = new Label("No Questions in Database");
         Separator sep = new Separator();
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
@@ -85,6 +91,7 @@ public class Main extends Application {
                     try {
                         qDB.loadQuestionsFromJSON(selectedFile);
                         resetCombo(topicSelection, qDB);
+                        changeDBN(dbInfo, qDB);
                     } catch(Exception e) {
                         System.out.println("File Upload Failure");
                     }
@@ -143,6 +150,7 @@ public class Main extends Application {
                         Question newQuestion = new Question("", questionText.getText(), questionTopic.getText(), "", choices, answerRight.getText());
                         qDB.addQuestion(newQuestion.getTopic(), newQuestion);
                         resetCombo(topicSelection, qDB);
+                        changeDBN(dbInfo, qDB);
                         addQuestionWindow.close();
                     }
                 });
@@ -212,7 +220,7 @@ public class Main extends Application {
         select.getChildren().addAll(selectLabel, questionNum);
         select.setAlignment(Pos.CENTER);
         indexPane.setPadding(new Insets(20));
-        mainPane.getChildren().addAll(sep1, addQuestion, addQuestionBtn, selectJSONBtn, sep, selectTopic, topicSelection, sep2, topicInfo, select);
+        mainPane.getChildren().addAll(sep1, addQuestion, addQuestionBtn, selectJSONBtn, sep, selectTopic, topicSelection, sep2, topicInfo, dbInfo, select);
         mainPane.setAlignment(Pos.CENTER);
 
 
@@ -228,7 +236,13 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-
+    @Override
+    public void stop() throws Exception {
+        Alert exiting = new Alert(Alert.AlertType.INFORMATION);
+        exiting.setHeaderText("Exiting Program");
+        exiting.setTitle("Exiting");
+        exiting.showAndWait();
+    }
     public static void main(String[] args) {
         launch(args);
     }
