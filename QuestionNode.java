@@ -31,6 +31,9 @@ public class QuestionNode implements NodeWrapperADT{
 		return this.node;
 	}
 	
+	public Question getQuestion() {
+      return this.question;
+    }
 	public ToggleGroup getChoices() {
 		return this.choices;
 	}
@@ -50,7 +53,7 @@ public class QuestionNode implements NodeWrapperADT{
 		node.getChildren().add(questionLabel);
 		//Set the text and Togglegroup for each button
 		for (Choice c:this.question.getChoices()) {
-		  ToggleButton bt=new ToggleButton(c.getChoice());
+		  RadioButton  bt=new RadioButton (c.getChoice());
 		  choices.getToggles().add(bt);
 		  node.getChildren().add(bt);
 		}
