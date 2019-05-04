@@ -1,7 +1,3 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import javafx.application.Application;
@@ -29,8 +25,6 @@ public class QuestionNode implements NodeWrapperADT{
 		this.choices = new ToggleGroup();
 		this.question = question;
 		SetupVBox();
-
-
 	}
 	
 	public VBox getNode() {
@@ -45,38 +39,24 @@ public class QuestionNode implements NodeWrapperADT{
 		//label for the question
 		Label questionLabel = new Label(this.question.getQuestion());
 		//Accompanying image to question
-		Image image = null;// = new Image(this.question.getImage());
-		ImageView imageView = new ImageView();
-		if (question.getImage() != null) {
-			if (image != null) {
-				imageView = new ImageView(image);
-				imageView.setFitHeight(200);
-				imageView.setFitWidth(200);
-				imageView.setPreserveRatio(true);
-			}
+		if (!question.getImage().equals("none")) {
+		  Image image = new Image(this.question.getImage());
+		  ImageView imageView = new ImageView(image);
+          imageView.setFitHeight(200);
+          imageView.setFitWidth(200);
+          imageView.setPreserveRatio(true);
+          node.getChildren().add(imageView);
 		}
-
-		// Add buttons
-		Iterator<Choice> iterator = this.question.getChoices().iterator();
-		ArrayList<ToggleButton> bts = new ArrayList<>();
-		while(iterator.hasNext()) {
-			bts.add(new ToggleButton(iterator.next().getChoice()));
-		}
-
-		//adding question and buttons to VBox
 		node.getChildren().add(questionLabel);
-		if(image != null) {
-			node.getChildren().add(imageView);
+		//Set the text and Togglegroup for each button
+		for (Choice c:this.question.getChoices()) {
+		  ToggleButton bt=new ToggleButton(c.getChoice());
+		  choices.getToggles().add(bt);
+		  node.getChildren().add(bt);
 		}
-
-		// Add buttons to screen
-		for (ToggleButton b : bts) {
-			b.setToggleGroup(choices);
-		}
-		node.getChildren().addAll(bts);
+		
+		
 	}
-
-
 
 	@Override
 	public Node node() {
