@@ -31,7 +31,7 @@ import java.util.Random;
 public class Main extends Application {
     QuestionDatabase qDB = new QuestionDatabase();
     private List<Question> quiz;
-    private List<Choice> answer;
+    private int correct;
 
     private void resetCombo(ComboBox cb, QuestionDatabase qdb) {
         cb.getItems().removeAll(cb.getItems());
@@ -79,9 +79,6 @@ public class Main extends Application {
         selectJSONBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText("UPLOAD JSON TEST");
-                alert.setContentText("Should open file menu");
 
                 // Create file picker
                 JFileChooser fileChooser = new JFileChooser();
@@ -101,7 +98,6 @@ public class Main extends Application {
                     }
                 }
 
-                alert.showAndWait();
             }
         });
 
@@ -260,40 +256,45 @@ public class Main extends Application {
     }
 
     private void quizScene(int idx, Stage quizWindow) {
-        if (quiz.size()<=idx) {
-            end(quizWindow);
-            return;
-        }
-        Question getQ=quiz.get(idx);
-        QuestionNode currentQ = new QuestionNode(getQ);
-        VBox vbox=new VBox(15);
-        Button b = new Button("Confirm");
-        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e)
-            {
-                quizScene(idx+1,quizWindow);
-            }
-        };
-        b.setOnAction(event);
-        Label status = new Label("Question#: "+(idx+1)+" of "+ quiz.size()+" Questions");
-        vbox.getChildren().add(status);
-        vbox.getChildren().add(currentQ.getNode());
-        vbox.getChildren().add(b);
-        Scene questionScene = new Scene(vbox, 400, 400);
-        quizWindow.setScene(questionScene);
-        quizWindow.show();
+      if (quiz.size()<=idx) {
+        end(quizWindow);
+        return;
+      }
+      Question getQ=quiz.get(idx);
+      QuestionNode currentQ = new QuestionNode(getQ);
+      VBox vbox=new VBox(15);
+      Button b = new Button("Confirm");
+      EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() { 
+        public void handle(ActionEvent e) 
+        { 
+          if (currentQ.getChoices().getSelectedToggle()==null) {}
+          else if (((RadioButton) currentQ.getChoices().getSelectedToggle()).getText()
+          .equals(currentQ.getQuestion().getAnswer())) {
+            correct++;
+          }
+          quizScene(idx+1,quizWindow);
+        } 
+      }; 
+      b.setOnAction(event); 
+      Label status = new Label("Question#: "+(idx+1)+" of "+ quiz.size()+" Questions");
+      vbox.getChildren().add(status);
+      vbox.getChildren().add(currentQ.getNode());
+      vbox.getChildren().add(b);
+      Scene questionScene = new Scene(vbox, 400, 400);
+      quizWindow.setScene(questionScene);
+      quizWindow.show();
 
     }
 
     private void end(Stage quizWindow) {
-        VBox vbox=new VBox(15);
-        Label status = new Label("Quiz result");
-        vbox.getChildren().add(status);
-        Scene questionScene = new Scene(vbox, 400, 400);
-        quizWindow.setScene(questionScene);
-        quizWindow.show();
-        quiz.clear();
-        answer.clear();
+      VBox vbox=new VBox(15);
+      Label status = new Label("Quiz result: #correct "+correct+" out of "+quiz.size()+". Your Score: "+(float)correct/quiz.size()*100);
+      vbox.getChildren().add(status);
+      Scene questionScene = new Scene(vbox, 400, 400);
+      quizWindow.setScene(questionScene);
+      quizWindow.show();
+      quiz.clear();
+      correct=0;
     }
 
 
