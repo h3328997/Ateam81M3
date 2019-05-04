@@ -8,7 +8,9 @@
 */
 
 import javax.swing.JFileChooser;
+import java.util.Optional;
 import javax.swing.filechooser.FileSystemView;
+import java.awt.event.WindowAdapter;
 import java.io.File;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -29,6 +31,7 @@ import java.util.Random;
 
 
 public class Main extends Application {
+    QuestionDatabase qDB = new QuestionDatabase();
 
     private void resetCombo(ComboBox cb, QuestionDatabase qdb) {
         cb.getItems().removeAll(cb.getItems());
@@ -47,7 +50,7 @@ public class Main extends Application {
         HBox select = new HBox();
         VBox mainPane = new VBox();
 
-        QuestionDatabase qDB = new QuestionDatabase();
+
 
 
         // Main Scene Control Declarations
@@ -245,7 +248,7 @@ public class Main extends Application {
 
         // Main Stage Config
         primaryStage.setTitle("ATEAM 81 Quiz Generator");
-        Scene primaryScene = new Scene(indexPane, 350, 465);
+        Scene primaryScene = new Scene(indexPane, 350, 495);
         primaryScene.getStylesheets().add("styles.css");
         startQuizBtn.getStyleClass().add("startbutton");
         title.getStyleClass().add("title");
@@ -255,11 +258,32 @@ public class Main extends Application {
 
     @Override
     public void stop() throws Exception {
-        Alert exiting = new Alert(Alert.AlertType.INFORMATION);
-        exiting.setHeaderText("Exiting Program");
-        exiting.setTitle("Exiting");
-        exiting.showAndWait();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Exiting Program");
+        alert.setHeaderText("Do you want to save the database?");
+        alert.setContentText("Chose your option");
+
+        ButtonType buttony = new ButtonType("Yes");
+        ButtonType buttonn = new ButtonType("No");
+
+        alert.getButtonTypes().setAll(buttony, buttonn);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttony) {
+            File file = new File("questions.json");
+            try {
+                file.createNewFile();
+            } catch (Exception e) {
+                System.out.println("File not created");
+            }
+            try {
+                qDB.saveQuestionsToJSON(file);
+            } catch (Exception e) {
+                System.out.println("File Error");
+            }
+        }
     }
+
     public static void main(String[] args) {
         launch(args);
     }
